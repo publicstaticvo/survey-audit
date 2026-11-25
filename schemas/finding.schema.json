@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "notes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "confidence": {"enum": ["high", "moderate", "low", "undetermined"]}
+  },
+  "type": "object",
+  "required": ["id", "kind", "status", "statement", "evidence_ids", "claim_ids", "reasoning", "confidence", "limitations", "suggested_next_steps"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["strength", "weakness", "question"]},
+    "status": {"enum": ["verified", "tentative", "unresolved", "not_applicable"]},
+    "statement": {"type": "string", "minLength": 1},
+    "evidence_ids": {"$ref": "#/$defs/ids"},
+    "claim_ids": {"$ref": "#/$defs/ids"},
+    "reasoning": {"type": "string", "minLength": 1},
+    "confidence": {"$ref": "#/$defs/confidence"},
+    "limitations": {"$ref": "#/$defs/notes"},
+    "suggested_next_steps": {"$ref": "#/$defs/notes"},
+    "failure_categories": {"$ref": "#/$defs/ids"},
+    "presentation": {"type": "boolean"},
+    "reviewer_concern": {"type": "string", "minLength": 1},
+    "legacy_categories": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^C([1-9]|10|11)$"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"enum": ["verified", "tentative"]}}}, "then": {"properties": {"evidence_ids": {"minItems": 1}}}},
+    {"if": {"properties": {"status": {"enum": ["tentative", "unresolved"]}}}, "then": {"properties": {"limitations": {"minItems": 1}, "suggested_next_steps": {"minItems": 1}}}}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "kind", "source", "version", "locator", "content", "role"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["passage", "artifact", "bounded_absence", "search_trace"]},
+    "source": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "minLength": 1},
+    "content": {"type": "string", "minLength": 1},
+    "role": {"type": "string", "minLength": 1},
+    "criterion": {"type": "string", "minLength": 1},
+    "coverage": {"type": "string", "minLength": 1},
+    "query": {"type": "string", "minLength": 1},
+    "date": {"type": "string", "format": "date"},
+    "filters": {"type": "string", "minLength": 1}
+  },
+  "allOf": [
+    {"if": {"properties": {"kind": {"const": "bounded_absence"}}}, "then": {"required": ["criterion", "coverage"]}},
+    {"if": {"properties": {"kind": {"const": "search_trace"}}}, "then": {"required": ["query", "date", "filters"]}}
+  ]
+}

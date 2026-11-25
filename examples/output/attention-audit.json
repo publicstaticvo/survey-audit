@@ -1,0 +1,111 @@
+{
+  "schema_version": "0.1",
+  "paper": {
+    "title": "Attention Is All You Need",
+    "source": "https://papers.neurips.cc/paper_files/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",
+    "version": "NeurIPS 2017 proceedings"
+  },
+  "scope": {
+    "mode": "partial",
+    "description": "Check the reported EN–DE BLEU gain against Table 2 and the positional-encoding wavelength description against the formula. Assess comparator coverage only within the manuscript.",
+    "literature_cutoff": null
+  },
+  "research_questions": ["Can an attention-based architecture attain competitive machine translation quality?"],
+  "claims": [
+    {"id": "CL1", "statement": "Transformer big reports 28.4 BLEU on WMT 2014 EN–DE.", "evidence_ids": ["E1", "E2"], "depends_on": []},
+    {"id": "CL2", "statement": "The EN–DE score is more than 2 BLEU above the best previously reported result, including ensembles.", "evidence_ids": ["E1", "E2"], "depends_on": ["CL1"]},
+    {"id": "CL3", "statement": "The sinusoidal wavelength range reaches 10000 × 2π.", "evidence_ids": ["E3", "E4"], "depends_on": []}
+  ],
+  "contributions": [
+    {"id": "CO1", "statement": "An attention-based architecture with competitive machine translation results and a specified positional encoding.", "claim_ids": ["CL1", "CL2", "CL3"], "evidence_ids": ["E1", "E3"]}
+  ],
+  "reasoning": "Calculate the gain within the reported comparison, then inspect whether its benchmark and baseline boundaries support the broader claim. Separately derive the realized wavelength range from the architecture specification.",
+  "confidence": "moderate",
+  "limitations": ["This audit uses the proceedings PDF and does not recompute BLEU or verify completeness of contemporaneous literature."],
+  "suggested_next_steps": ["Obtain archived outputs and BLEU settings for score reproduction.", "Resolve comparator versions and review contemporaneous WMT results for a priority check."],
+  "findings": [
+    {
+      "id": "F1", "kind": "strength", "status": "verified",
+      "statement": "The table substantiates the reported gain against the strongest listed EN–DE comparator.",
+      "evidence_ids": ["E1", "E2"], "claim_ids": ["CL1", "CL2"],
+      "reasoning": "The reported 28.4 exceeds the strongest listed comparator's 26.36 by 2.04 BLEU.",
+      "confidence": "high", "limitations": ["Arithmetic uses the displayed precision."], "suggested_next_steps": []
+    },
+    {
+      "id": "F2", "kind": "weakness", "status": "verified",
+      "statement": "The exact wavelength endpoint in the prose is larger than the maximum realized by the stated formula at the reported model dimensions.",
+      "evidence_ids": ["E3", "E4", "E5"], "claim_ids": ["CL3"],
+      "reasoning": "For paired coordinates, the highest pair is i = d_model / 2 − 1. Its wavelength is 2π × 10000^(1 − 2/d_model), strictly below 2π × 10000.",
+      "confidence": "high", "limitations": ["The finding concerns the literal endpoint under the stated formula."],
+      "suggested_next_steps": ["State the exact endpoint or mark the bound as approximate."],
+      "failure_categories": ["Conceptual / Theoretical Failure"], "presentation": true, "legacy_categories": ["C1"]
+    },
+    {
+      "id": "F3", "kind": "weakness", "status": "tentative",
+      "statement": "The comparison may leave baseline coverage insufficient for the literature-wide priority claim.",
+      "evidence_ids": ["E1", "E2", "E6"], "claim_ids": ["CL2"],
+      "reasoning": "The abstract's comparator set is broad and Table 2 enumerates specific systems. The accompanying text provides no selection criterion for the set. Its completeness within contemporaneous literature remains uncertain.",
+      "confidence": "low", "limitations": ["No omitted eligible system was identified in this manuscript-only audit."],
+      "suggested_next_steps": ["Compare Table 2 to contemporaneous WMT leaderboards and inspect differing BLEU conventions."],
+      "failure_categories": ["Scope / Generalization Failure"]
+    },
+    {
+      "id": "F4", "kind": "question", "status": "unresolved",
+      "statement": "Can the reported test score be reproduced from the original system outputs?",
+      "evidence_ids": ["E2"], "claim_ids": ["CL1"],
+      "reasoning": "Table 2 reports the score. Reproducing it would require archived translations, test references and matching evaluation settings.",
+      "confidence": "undetermined", "limitations": ["The required run artifacts were outside the materials inspected."],
+      "suggested_next_steps": ["Locate the original outputs and the evaluation command." ]
+    }
+  ],
+  "evidence": [
+    {"id": "E1", "kind": "passage", "source": "Attention Is All You Need", "version": "NeurIPS 2017 proceedings", "locator": "Abstract, PDF page 1", "content": "including ensembles, by over 2 BLEU", "role": "Anchors the scope and magnitude of the comparison."},
+    {"id": "E2", "kind": "artifact", "source": "Attention Is All You Need", "version": "NeurIPS 2017 proceedings", "locator": "Table 2, PDF page 8, EN–DE column", "content": "Transformer (big) 28.4 and ConvS2S Ensemble 26.36, the highest displayed non-Transformer EN–DE score.", "role": "Provides the reported score and strongest listed comparison."},
+    {"id": "E3", "kind": "passage", "source": "Attention Is All You Need", "version": "NeurIPS 2017 proceedings", "locator": "§3.5, PDF page 6", "content": "The wavelengths form a geometric progression from 2π to 10000 · 2π.", "role": "States the endpoint examined."},
+    {"id": "E4", "kind": "artifact", "source": "Attention Is All You Need", "version": "NeurIPS 2017 proceedings", "locator": "§3.5 formulas and Table 3 model dimensions, PDF pages 6 and 9", "content": "The sinusoid argument divides position by 10000^(2i/d_model). Table 3 reports d_model = 512 for base and 1024 for big.", "role": "Establishes the formula and finite coordinate ranges."},
+    {"id": "E5", "kind": "artifact", "source": "Audit derivation using E4", "version": "v0.1 example", "locator": "Largest paired coordinate 2i = d_model − 2", "content": "2i/d_model = 1 − 2/d_model, hence the largest period is 2π × 10000^(1 − 2/d_model).", "role": "Shows the bound is strictly below the prose endpoint."},
+    {"id": "E6", "kind": "bounded_absence", "source": "Attention Is All You Need", "version": "NeurIPS 2017 proceedings", "locator": "Table 2 and §6.1, PDF page 8", "content": "Table 2 names comparators and §6.1 summarizes their results. Neither passage states a procedure for identifying all eligible previously reported WMT 2014 EN–DE systems.", "criterion": "Explicit rules or a source for identifying the set of eligible prior comparators.", "coverage": "Table 2 caption, table entries and the machine translation results in §6.1.", "role": "Bounds the uncertainty about comparator completeness to the inspected reporting."}
+  ],
+  "obligations": {
+    "reference_integrity": {"applicability": "outside_scope", "outcome": "Not Applicable", "reasoning": "The request excludes bibliographic identity and version checks.", "targets": []},
+    "citation_support": {"applicability": "outside_scope", "outcome": "Not Applicable", "reasoning": "The request limits comparator inspection to the reported table.", "targets": []},
+    "central_claim_verification": {"applicability": "applicable", "outcome": "Unresolved", "reasoning": "Reported figures can be checked. Independent score reproduction remains open.", "targets": [
+      {"target": "CL1, reported value", "outcome": "Verified", "reasoning": "Table 2 reports the stated score.", "evidence_ids": ["E2"]},
+      {"target": "CL1, evaluation reproduction", "outcome": "Unresolved", "reasoning": "No evaluation artifacts were inspected.", "evidence_ids": ["E2"]}
+    ]},
+    "method_evidence_alignment": {"applicability": "applicable", "outcome": "Verified", "reasoning": "The displayed comparison supports the within-table numerical claim.", "targets": [
+      {"target": "CL2, gain within Table 2", "outcome": "Verified", "reasoning": "The difference is 2.04 BLEU for the strongest displayed comparator.", "evidence_ids": ["E1", "E2"]}
+    ]},
+    "internal_consistency": {"applicability": "applicable", "outcome": "Contradicted", "reasoning": "The prose endpoint conflicts with the finite-dimensional formula.", "targets": [
+      {"target": "CL3, exact prose endpoint versus formula", "outcome": "Contradicted", "reasoning": "The maximal exponent is smaller than one.", "evidence_ids": ["E3", "E4", "E5"]}
+    ]},
+    "counterevidence_awareness": {"applicability": "applicable", "outcome": "Unresolved", "reasoning": "The strongest listed comparator was examined. External candidates were outside the requested inspection.", "targets": [
+      {"target": "CL2, possible contrary results beyond Table 2", "outcome": "Unresolved", "reasoning": "The strongest listed baseline does not rule out an omitted stronger baseline.", "evidence_ids": ["E2"]}
+    ]},
+    "scope_verification": {"applicability": "applicable", "outcome": "Unresolved", "reasoning": "The within-table result is established and the wider comparator scope is open.", "targets": [
+      {"target": "CL2, previously reported comparator coverage", "outcome": "Unresolved", "reasoning": "The table establishes the comparison over its displayed rows.", "evidence_ids": ["E1", "E2"]}
+    ]},
+    "uncertainty_reporting": {"applicability": "applicable", "outcome": "Verified", "reasoning": "Residual comparison and reproducibility limits are linked to the affected claims.", "targets": [
+      {"target": "CL1 and CL2 uncertainty", "outcome": "Verified", "reasoning": "F3 and F4 state limitations and what would resolve them.", "evidence_ids": ["E1", "E2"]}
+    ]}
+  },
+  "investigation": [
+    {"skill": "paper-understanding", "decision": "Identified the numerical benchmark claim and the wavelength statement as independently checkable.", "evidence_ids": ["E1", "E3"]},
+    {"skill": "scientific-verification", "decision": "Compared the table values. The wording for the wavelength endpoint prompted a derivation from the finite coordinate index.", "evidence_ids": ["E2", "E3", "E4", "E5"]},
+    {"skill": "critical-reasoning", "decision": "The table establishes the numerical margin. The abstract's broader comparator wording prompted a scope check and a record of the uninspected literature.", "evidence_ids": ["E1", "E2"]},
+    {"skill": "quality-synthesis", "decision": "Traced the endpoint issue to the architectural description and the coverage issue to the priority claim.", "evidence_ids": ["E2", "E5"]}
+  ],
+  "assessment": {
+    "dimensions": {
+      "scholarly_value": {"judgment": "The reported benchmark gain adds value to the architectural proposal within the checked comparison.", "finding_ids": ["F1", "F3"], "uncertainty": "The wider priority claim remains open."},
+      "epistemic_credibility": {"judgment": "The table supports the stated magnitude within the displayed comparison. The endpoint wording needs correction.", "finding_ids": ["F1", "F2"], "uncertainty": "Independent BLEU verification is outside the available evidence."},
+      "verifiability": {"judgment": "Table entries and equations make the arithmetic and wavelength derivation inspectable.", "finding_ids": ["F1", "F2", "F4"], "uncertainty": "End-to-end score reproduction remains unresolved."}
+    },
+    "conclusion": "The stated EN–DE margin holds among listed comparators. Correcting the wavelength endpoint is a local repair. Literature-wide priority and score reproduction remain open.",
+    "impacts": [
+      {"finding_id": "F1", "claim_ids": ["CL1", "CL2"], "contribution_ids": ["CO1"], "importance": "Supports the benchmark component of the architecture contribution.", "repair": "None for the within-table arithmetic.", "compensating_finding_ids": [], "compensation": "Independent of the wavelength description.", "critical": false},
+      {"finding_id": "F2", "claim_ids": ["CL3"], "contribution_ids": ["CO1"], "importance": "Changes the exact stated range, with no demonstrated effect on benchmark scores.", "repair": "Correct or qualify the endpoint in §3.5.", "compensating_finding_ids": [], "compensation": "The exact claim relies on the formula and finite dimension.", "critical": false},
+      {"finding_id": "F3", "claim_ids": ["CL2"], "contribution_ids": ["CO1"], "importance": "The wider historical priority claim depends on eligible comparator coverage.", "repair": "Verify comparator coverage or narrow the claim to the evaluated set.", "compensating_finding_ids": ["F1"], "compensation": "F1 preserves the narrower within-table result. Wider priority requires additional evidence.", "critical": false}
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["findings", "evidence", "reasoning", "confidence", "limitations", "suggested_next_steps"],
+  "properties": {
+    "findings": {"type": "array", "items": {"$ref": "finding.schema.json"}},
+    "evidence": {"type": "array", "items": {"$ref": "evidence.schema.json"}},
+    "reasoning": {"type": "string", "minLength": 1},
+    "confidence": {"$ref": "finding.schema.json#/$defs/confidence"},
+    "limitations": {"$ref": "finding.schema.json#/$defs/notes"},
+    "suggested_next_steps": {"$ref": "finding.schema.json#/$defs/notes"},
+    "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}},
+    "contributions": {"type": "array", "items": {"$ref": "#/$defs/contribution"}}
+  },
+  "$defs": {
+    "claim": {
+      "type": "object", "required": ["id", "statement", "evidence_ids", "depends_on"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "statement": {"type": "string", "minLength": 1},
+        "evidence_ids": {"$ref": "finding.schema.json#/$defs/ids", "minItems": 1},
+        "depends_on": {"$ref": "finding.schema.json#/$defs/ids"}
+      }
+    },
+    "contribution": {
+      "type": "object", "required": ["id", "statement", "claim_ids", "evidence_ids"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "statement": {"type": "string", "minLength": 1},
+        "claim_ids": {"$ref": "finding.schema.json#/$defs/ids"},
+        "evidence_ids": {"$ref": "finding.schema.json#/$defs/ids", "minItems": 1}
+      }
+    }
+  }
+}

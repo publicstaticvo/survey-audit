@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "allOf": [{"$ref": "skill-result.schema.json"}],
+  "required": ["schema_version", "paper", "scope", "research_questions", "claims", "contributions", "obligations", "investigation", "assessment"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "paper": {
+      "type": "object", "required": ["title", "source", "version"],
+      "properties": {"title": {"$ref": "#/$defs/text"}, "source": {"$ref": "#/$defs/text"}, "version": {"$ref": "#/$defs/text"}}
+    },
+    "scope": {
+      "type": "object", "required": ["mode", "description", "literature_cutoff"],
+      "properties": {"mode": {"enum": ["full", "partial"]}, "description": {"$ref": "#/$defs/text"}, "literature_cutoff": {"type": ["string", "null"], "format": "date"}}
+    },
+    "research_questions": {"$ref": "finding.schema.json#/$defs/notes"},
+    "obligations": {
+      "type": "object",
+      "required": ["reference_integrity", "citation_support", "central_claim_verification", "method_evidence_alignment", "internal_consistency", "counterevidence_awareness", "scope_verification", "uncertainty_reporting"],
+      "additionalProperties": {"$ref": "#/$defs/obligation"}
+    },
+    "investigation": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "required": ["skill", "decision", "evidence_ids"],
+        "properties": {"skill": {"$ref": "#/$defs/text"}, "decision": {"$ref": "#/$defs/text"}, "evidence_ids": {"$ref": "#/$defs/ids"}}
+      }
+    },
+    "assessment": {
+      "type": "object", "required": ["dimensions", "conclusion", "impacts"],
+      "properties": {
+        "dimensions": {
+          "type": "object", "required": ["scholarly_value", "epistemic_credibility", "verifiability"], "additionalProperties": false,
+          "properties": {"scholarly_value": {"$ref": "#/$defs/judgment"}, "epistemic_credibility": {"$ref": "#/$defs/judgment"}, "verifiability": {"$ref": "#/$defs/judgment"}}
+        },
+        "conclusion": {"$ref": "#/$defs/text"},
+        "impacts": {"type": "array", "items": {"$ref": "#/$defs/impact"}}
+      }
+    }
+  },
+  "$defs": {
+    "text": {"type": "string", "minLength": 1},
+    "ids": {"$ref": "finding.schema.json#/$defs/ids"},
+    "target": {
+      "type": "object", "required": ["target", "outcome", "reasoning", "evidence_ids"],
+      "properties": {
+        "target": {"$ref": "#/$defs/text"},
+        "outcome": {"enum": ["Verified", "Contradicted", "Unresolved", "Not Applicable"]},
+        "reasoning": {"$ref": "#/$defs/text"},
+        "evidence_ids": {"$ref": "#/$defs/ids"}
+      },
+      "if": {"properties": {"outcome": {"enum": ["Verified", "Contradicted"]}}},
+      "then": {"properties": {"evidence_ids": {"minItems": 1}}}
+    },
+    "obligation": {
+      "type": "object", "required": ["applicability", "outcome", "reasoning", "targets"],
+      "properties": {
+        "applicability": {"enum": ["applicable", "not_applicable", "outside_scope"]},
+        "outcome": {"enum": ["Verified", "Contradicted", "Unresolved", "Not Applicable"]},
+        "reasoning": {"$ref": "#/$defs/text"},
+        "targets": {"type": "array", "items": {"$ref": "#/$defs/target"}}
+      },
+      "if": {"properties": {"applicability": {"const": "applicable"}}},
+      "then": {"properties": {"targets": {"minItems": 1}}},
+      "else": {"properties": {"outcome": {"const": "Not Applicable"}, "targets": {"maxItems": 0}}}
+    },
+    "judgment": {
+      "type": "object", "required": ["judgment", "finding_ids", "uncertainty"],
+      "properties": {"judgment": {"$ref": "#/$defs/text"}, "finding_ids": {"$ref": "#/$defs/ids"}, "uncertainty": {"$ref": "#/$defs/text"}}
+    },
+    "impact": {
+      "type": "object", "required": ["finding_id", "claim_ids", "contribution_ids", "importance", "repair", "compensating_finding_ids", "compensation", "critical"],
+      "properties": {
+        "finding_id": {"$ref": "#/$defs/text"}, "claim_ids": {"$ref": "#/$defs/ids"}, "contribution_ids": {"$ref": "#/$defs/ids"},
+        "importance": {"$ref": "#/$defs/text"}, "repair": {"$ref": "#/$defs/text"}, "compensating_finding_ids": {"$ref": "#/$defs/ids"},
+        "compensation": {"$ref": "#/$defs/text"}, "critical": {"type": "boolean"}
+      }
+    }
+  }
+}
